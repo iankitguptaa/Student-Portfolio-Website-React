@@ -1,42 +1,45 @@
+// src/pages/student/ManageProjectsPage.jsx
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { updateStudentProjects } from "../../services/portfolioService.js";
+import { updateUser } from "../../services/userService.js";
 
 export default function ManageProjectsPage() {
-  const { user, login } = useAuth();
-  const [projects, setProjects] = useState(user.projects || []);
+  const { currentUser, setCurrentUser } = useAuth();
+  const [projects, setProjects] = useState(currentUser?.projects || []);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [desc, setDesc] = useState("");
 
-  const addProject = (e) => {
+  const handleAdd = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
+    const updatedProjects = [
+      ...projects,
+      { id: Date.now().toString(), title, description: desc },
+    ];
+    setProjects(updatedProjects);
 
-    const newProjects = [...projects, { title, description }];
-    const updated = updateStudentProjects(user, newProjects);
+    const updatedUser = { ...currentUser, projects: updatedProjects };
+    updateUser(updatedUser);
+    setCurrentUser(updatedUser);
 
-    setProjects(newProjects);
-    login(updated);
     setTitle("");
-    setDescription("");
+    setDesc("");
   };
 
-  const removeProject = (index) => {
-    const newProjects = projects.filter((_, i) => i !== index);
-    const updated = updateStudentProjects(user, newProjects);
-    setProjects(newProjects);
-    login(updated);
+  const handleRemove = (id) => {
+    const updatedProjects = projects.filter((p) => p.id !== id);
+    setProjects(updatedProjects);
+    const updatedUser = { ...currentUser, projects: updatedProjects };
+    updateUser(updatedUser);
+    setCurrentUser(updatedUser);
   };
 
   return (
     <div>
       <div className="card auth-card">
-        <h2 className="page-title">Manage projects</h2>
-        <p className="page-subtitle">
-          Add the projects you are proud of. These will show up on your public portfolio.
-        </p>
+        <h2 className="page-title">Manage Projects</h2>
 
-        <form onSubmit={addProject} className="mt-md">
+        <form onSubmit={handleAdd} className="mt-md">
           <input
             className="input"
             placeholder="Project title"
@@ -46,9 +49,9 @@ export default function ManageProjectsPage() {
           <textarea
             className="input"
             rows={3}
-            placeholder="Short description (what it does, tech used, your role)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Project description"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
           />
           <button className="btn btn-primary" type="submit">
             Add project
@@ -57,36 +60,24 @@ export default function ManageProjectsPage() {
       </div>
 
       <div className="card">
-        <h3 style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>Your projects</h3>
+        <h3>Your projects</h3>
         {projects.length === 0 ? (
-          <p style={{ fontSize: "0.9rem", color: "#9ca3af" }}>
-            No projects yet. Add your first project above.
-          </p>
+          <p className="muted-text">No projects added yet.</p>
         ) : (
-          <ul style={{ paddingLeft: "1rem" }}>
-            {projects.map((p, idx) => (
-              <li key={idx} style={{ marginBottom: "0.7rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
-                    <div style={{ fontWeight: 550 }}>{p.title}</div>
-                    <div
-                      style={{
-                        fontSize: "0.87rem",
-                        color: "#cbd5f5",
-                        marginTop: "0.15rem",
-                      }}
-                    >
-                      {p.description}
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-ghost"
-                    type="button"
-                    onClick={() => removeProject(idx)}
-                  >
-                    Remove
-                  </button>
+          <ul className="project-list">
+            {projects.map((p) => (
+              <li key={p.id} className="project-item">
+                <div>
+                  <strong>{p.title}</strong>
+                  <p>{p.description}</p>
                 </div>
+                <button
+                  className="btn btn-ghost"
+                  type="button"
+                  onClick={() => handleRemove(p.id)}
+                >
+                  Remove
+                </button>
               </li>
             ))}
           </ul>

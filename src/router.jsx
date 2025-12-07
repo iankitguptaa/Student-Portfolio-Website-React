@@ -1,37 +1,37 @@
+// src/router.jsx
 import { Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage.jsx";
-import ExplorePortfoliosPage from "./pages/ExplorePortfoliosPage.jsx";
-import ViewPortfolioPage from "./pages/ViewPortfolioPage.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
 import LoginPage from "./pages/LoginPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
+import ExplorePortfoliosPage from "./pages/ExplorePortfoliosPage.jsx";
+import ViewPortfolioPage from "./pages/ViewPortfolioPage.jsx";
 
+// student pages
 import StudentDashboardPage from "./pages/student/StudentDashboardPage.jsx";
 import EditProfilePage from "./pages/student/EditProfilePage.jsx";
 import ManageProjectsPage from "./pages/student/ManageProjectsPage.jsx";
 
+// admin pages
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage.jsx";
 import AdminStudentsListPage from "./pages/admin/AdminStudentsListPage.jsx";
 import AdminStudentDetailPage from "./pages/admin/AdminStudentDetailPage.jsx";
 
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-
-export default function AppRouter() {
+export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/" element={<HomePage />} />
+      {/* Public routes */}
+      <Route path="/" element={<ExplorePortfoliosPage />} />
       <Route path="/explore" element={<ExplorePortfoliosPage />} />
       <Route path="/portfolio/:id" element={<ViewPortfolioPage />} />
-
-      {/* Auth */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
 
-      {/* Student */}
+      {/* Student routes */}
       <Route
         path="/student/dashboard"
         element={
-          <ProtectedRoute role="student">
+          <ProtectedRoute allowed={["student"]}>
             <StudentDashboardPage />
           </ProtectedRoute>
         }
@@ -39,7 +39,7 @@ export default function AppRouter() {
       <Route
         path="/student/edit-profile"
         element={
-          <ProtectedRoute role="student">
+          <ProtectedRoute allowed={["student"]}>
             <EditProfilePage />
           </ProtectedRoute>
         }
@@ -47,17 +47,17 @@ export default function AppRouter() {
       <Route
         path="/student/projects"
         element={
-          <ProtectedRoute role="student">
+          <ProtectedRoute allowed={["student"]}>
             <ManageProjectsPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Admin */}
+      {/* Admin routes */}
       <Route
         path="/admin/dashboard"
         element={
-          <ProtectedRoute role="admin">
+          <ProtectedRoute allowed={["admin"]}>
             <AdminDashboardPage />
           </ProtectedRoute>
         }
@@ -65,7 +65,7 @@ export default function AppRouter() {
       <Route
         path="/admin/students"
         element={
-          <ProtectedRoute role="admin">
+          <ProtectedRoute allowed={["admin"]}>
             <AdminStudentsListPage />
           </ProtectedRoute>
         }
@@ -73,7 +73,7 @@ export default function AppRouter() {
       <Route
         path="/admin/student/:id"
         element={
-          <ProtectedRoute role="admin">
+          <ProtectedRoute allowed={["admin"]}>
             <AdminStudentDetailPage />
           </ProtectedRoute>
         }

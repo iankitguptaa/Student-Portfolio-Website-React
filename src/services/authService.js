@@ -1,14 +1,30 @@
-import { saveToStorage, getFromStorage, removeFromStorage } from "../utils/storage.js";
+// src/services/authService.js
 
 const USERS_KEY = "spp_users";
 const CURRENT_USER_KEY = "spp_current_user";
 
-// FINAL VERSION - ONLY STUDENT SIGNUP ALLOWED
-export function signup({ name, email, password }) {
-  const users = getFromStorage(USERS_KEY, []);
+function loadUsers() {
+  return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+}
 
-  if (users.find((u) => u.email === email)) {
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+export function signup({ name, email, password, role }) {
+  const users = loadUsers();
+
+  // Email already registered
+  if (users.some((u) => u.email === email)) {
     throw new Error("Email already registered");
+  }
+
+  // Only 1 admin allowed
+  if (role === "admin") {
+    const existingAdmin = users.find((u) => u.role === "admin");
+    if (existingAdmin) {
+      throw new Error("Admin already exists");
+    }
   }
 
   const newUser = {
@@ -16,58 +32,42 @@ export function signup({ name, email, password }) {
     name,
     email,
     password,
-    role: "student",  // ALWAYS STUDENT
+    role,
     bio: "",
     skills: [],
-    projects: [],
     education: { degree: "", institution: "", graduationYear: "" },
     github: "",
     linkedin: "",
     profileImage: "",
     resume: "",
-    achievements: [],
+    projects: [],
   };
 
   users.push(newUser);
-  saveToStorage(USERS_KEY, users);
-  saveToStorage(CURRENT_USER_KEY, newUser);
+  saveUsers(users);
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
   return newUser;
 }
 
-// LOGIN
 export function login({ email, password }) {
-  const users = getFromStorage(USERS_KEY, []);
-  const found = users.find((u) => u.email === email && u.password === password);
+  const users = loadUsers();
+  const found = users.find(
+    (u) => u.email === email && u.password === password
+  );
 
   if (!found) {
     throw new Error("Invalid email or password");
   }
 
-  saveToStorage(CURRENT_USER_KEY, found);
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(found));
   return found;
 }
 
 export function logout() {
-  removeFromStorage(CURRENT_USER_KEY);
+  localStorage.removeItem(CURRENT_USER_KEY);
 }
 
 export function getCurrentUser() {
-  return getFromStorage(CURRENT_USER_KEY, null);
-}
-
-export function getAllUsers() {
-  return getFromStorage(USERS_KEY, []);
-}
-
-export function updateUser(updatedUser) {
-  const users = getFromStorage(USERS_KEY, []);
-  const index = users.findIndex((u) => u.id === updatedUser.id);
-
-  if (index !== -1) {
-    users[index] = updatedUser;
-    saveToStorage(USERS_KEY, users);
-    saveToStorage(CURRENT_USER_KEY, updatedUser);
-  }
-
-  return updatedUser;
+  const stored = localStorage.getItem(CURRENT_USER_KEY);
+  return stored ? JSON.parse(stored) : null;
 }

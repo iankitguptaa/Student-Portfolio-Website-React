@@ -1,36 +1,30 @@
-import { useEffect, useState } from "react";
-import { getPublicPortfolios } from "../services/portfolioService.js";
-import PortfolioCard from "../components/PortfolioCard.jsx";
+// src/pages/student/StudentDashboardPage.jsx
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
 
-export default function ExplorePortfoliosPage() {
-  const [students, setStudents] = useState([]);
-
-  useEffect(() => {
-    setStudents(getPublicPortfolios());
-  }, []);
+export default function StudentDashboardPage() {
+  const { currentUser } = useAuth();
 
   return (
     <div>
       <div className="card">
-        <h2 className="page-title">Explore student portfolios</h2>
+        <h2 className="page-title">Hi, {currentUser?.name}</h2>
         <p className="page-subtitle">
-          Browse profiles and see what students are building across your institute.
+          Manage your profile, projects and public portfolio.
         </p>
-      </div>
 
-      {students.length === 0 ? (
-        <div className="card">
-          <p style={{ color: "#9ca3af", fontSize: "0.9rem" }}>
-            No portfolios yet. Ask students to sign up and start building their profiles.
-          </p>
+        <div className="flex-row mt-md">
+          <Link to="/student/edit-profile">
+            <button className="btn btn-secondary">Edit profile</button>
+          </Link>
+          <Link to="/student/projects">
+            <button className="btn btn-secondary">Manage projects</button>
+          </Link>
+          <Link to={`/portfolio/${currentUser?.id}`}>
+            <button className="btn btn-primary">View public portfolio</button>
+          </Link>
         </div>
-      ) : (
-        <div className="grid grid-3">
-          {students.map((s) => (
-            <PortfolioCard key={s.id} student={s} />
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

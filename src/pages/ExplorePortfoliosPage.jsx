@@ -1,32 +1,34 @@
+// src/pages/ExplorePortfoliosPage.jsx
 import { useEffect, useState } from "react";
-import { getAllStudents } from "../services/userService.js";
+import { getAllPortfolios } from "../services/portfolioService.js";
 import PortfolioCard from "../components/PortfolioCard.jsx";
 
 export default function ExplorePortfoliosPage() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      const list = await getAllStudents();
-      setStudents(list);
-    })();
+    setStudents(getAllPortfolios());
   }, []);
 
   return (
     <div>
       <div className="card">
-        <h2 className="page-title">Explore Portfolios</h2>
-        <p className="page-subtitle">Browse all student profiles.</p>
+        <h1 className="page-title">Explore Portfolios</h1>
+        <p className="page-subtitle">
+          Browse student profiles and see their skills and projects.
+        </p>
       </div>
 
       {students.length === 0 ? (
         <div className="card">
-          <p style={{ color: "#9ca3af" }}>No portfolios yet.</p>
+          <p className="muted-text">
+            No portfolios yet. Ask students to sign up and build theirs!
+          </p>
         </div>
       ) : (
-        <div className="grid grid-3">
+        <div className="grid grid-3 mt-md">
           {students.map((s) => (
-            <PortfolioCard student={s} key={s.id} />
+            <PortfolioCard key={s.id} student={s} />
           ))}
         </div>
       )}

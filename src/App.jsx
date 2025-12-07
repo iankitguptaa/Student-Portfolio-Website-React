@@ -1,15 +1,16 @@
+// src/App.jsx
 import Navbar from "./components/Navbar.jsx";
-import AppRouter from "./router.jsx";
+import AppRoutes from "./router.jsx";
 
 export default function App() {
   return (
     <div className="app-root">
       <Navbar />
-      <div className="app-main">
+      <main className="app-main">
         <div className="app-container">
-          <AppRouter />
+          <AppRoutes />
         </div>
-      </div>
+      </main>
     </div>
   );
 }

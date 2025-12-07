@@ -1,13 +1,16 @@
+// src/components/Navbar.jsx
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { logout } from "../services/authService.js";
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    setCurrentUser(null);
+    navigate("/login");
   };
 
   return (
@@ -17,22 +20,22 @@ export default function Navbar() {
           <div className="nav-logo-pill">SP</div>
           <div>
             <div className="nav-brand-text-main">Student Portfolio</div>
-            <div className="nav-brand-text-sub">Showcase • Discover • Manage</div>
+            <div className="nav-brand-text-sub">LocalStorage · Dark</div>
           </div>
         </Link>
 
         <div className="nav-links">
-          <Link to="/explore" className="nav-link">
+          <Link to="/" className="nav-link">
             Explore
           </Link>
 
-          {isAuthenticated && user?.role === "student" && (
+          {currentUser?.role === "student" && (
             <Link to="/student/dashboard" className="nav-link">
-              My dashboard
+              Dashboard
             </Link>
           )}
 
-          {isAuthenticated && user?.role === "admin" && (
+          {currentUser?.role === "admin" && (
             <>
               <Link to="/admin/dashboard" className="nav-link">
                 Admin
@@ -43,7 +46,7 @@ export default function Navbar() {
             </>
           )}
 
-          {!isAuthenticated ? (
+          {!currentUser ? (
             <>
               <Link to="/login">
                 <button className="btn btn-ghost">Login</button>
@@ -54,9 +57,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>
-                <span style={{ color: "#e5e7eb" }}>{user.name}</span>{" "}
-                <span style={{ opacity: 0.8 }}>· {user.role}</span>
+              <span className="nav-user-tag">
+                {currentUser.name} · {currentUser.role}
               </span>
               <button className="btn btn-secondary" onClick={handleLogout}>
                 Logout

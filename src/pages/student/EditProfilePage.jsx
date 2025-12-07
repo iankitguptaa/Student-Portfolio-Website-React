@@ -1,43 +1,71 @@
+// src/pages/student/EditProfilePage.jsx
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { updateStudentProfile } from "../../services/portfolioService.js";
+import { updateUser } from "../../services/userService.js";
 
 export default function EditProfilePage() {
-  const { user, login } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
 
-  const [name, setName] = useState(user.name);
-  const [bio, setBio] = useState(user.bio || "");
-  const [skills, setSkills] = useState((user.skills || []).join(", "));
-  const [profileImage, setProfileImage] = useState(user.profileImage || "");
-
-  const [degree, setDegree] = useState(user.education?.degree || "");
-  const [institution, setInstitution] = useState(user.education?.institution || "");
-  const [graduationYear, setGraduationYear] = useState(
-    user.education?.graduationYear || ""
+  const [name, setName] = useState(currentUser?.name || "");
+  const [bio, setBio] = useState(currentUser?.bio || "");
+  const [skills, setSkills] = useState((currentUser?.skills || []).join(", "));
+  const [degree, setDegree] = useState(currentUser?.education?.degree || "");
+  const [institution, setInstitution] = useState(
+    currentUser?.education?.institution || ""
   );
-
-  const [github, setGithub] = useState(user.github || "");
-  const [linkedin, setLinkedin] = useState(user.linkedin || "");
-
-  const [resume, setResume] = useState(user.resume || "");   // NEW STATE
-  const [resumeName, setResumeName] = useState("");          // NEW
-
+  const [gradYear, setGradYear] = useState(
+    currentUser?.education?.graduationYear || ""
+  );
+  const [github, setGithub] = useState(currentUser?.github || "");
+  const [linkedin, setLinkedin] = useState(currentUser?.linkedin || "");
+  const [profileImage, setProfileImage] = useState(
+    currentUser?.profileImage || ""
+  );
+  const [resume, setResume] = useState(currentUser?.resume || "");
   const [message, setMessage] = useState("");
 
-  const handleImageUpload = (e) => {
+  const handleSave = (e) => {
+    e.preventDefault();
+
+    const skillsArr = skills
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const updated = {
+      ...currentUser,
+      name,
+      bio,
+      skills: skillsArr,
+      education: {
+        degree,
+        institution,
+        graduationYear: gradYear,
+      },
+      github,
+      linkedin,
+      profileImage,
+      resume,
+    };
+
+    updateUser(updated);
+    setCurrentUser(updated);
+    setMessage("Profile updated successfully!");
+  };
+
+  const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => setProfileImage(reader.result);
+    reader.onloadend = () => {
+      setProfileImage(reader.result);
+    };
     reader.readAsDataURL(file);
   };
 
-  const handleResumeUpload = (e) => {
+  const handleResumeChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    setResumeName(file.name);
-
     const reader = new FileReader();
     reader.onloadend = () => {
       setResume(reader.result);
@@ -45,94 +73,98 @@ export default function EditProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const removeResume = () => {
-    setResume("");
-    setResumeName("");
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const skillsArray = skills
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const education = { degree, institution, graduationYear };
-
-    const updated = updateStudentProfile(user, {
-      name,
-      bio,
-      skills: skillsArray,
-      education,
-      github,
-      linkedin,
-      profileImage,
-      resume, 
-    });
-
-    login(updated);
-    setMessage("Profile Updated Successfully!");
-  };
-
   return (
     <div className="card auth-card">
       <h2 className="page-title">Edit Profile</h2>
-      <p className="page-subtitle">
-        Add resume, skills, education and links to improve your portfolio.
-      </p>
+      {message && <p className="success-text">{message}</p>}
 
-      {message && (
-        <p style={{ color: "#bbf7d0", fontSize: "0.85rem" }}>{message}</p>
-      )}
-
-      <form onSubmit={handleSubmit} className="mt-md">
-        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          <img
-            src={profileImage || "https://via.placeholder.com/120"}
-            alt="Profile"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "3px solid #6366f1",
-            }}
-          />
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
+      {/* profile image */}
+      <div className="profile-photo-block">
+        <div className="profile-photo-circle">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <span>No photo</span>
+          )}
         </div>
+        <input type="file" accept="image/*" onChange={handleProfileImageChange} />
+      </div>
 
-        <input className="input" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
-        <textarea className="input" rows={3} placeholder="Short bio" value={bio} onChange={(e) => setBio(e.target.value)} />
-        <input className="input" placeholder="Skills (React, C++, etc.)" value={skills} onChange={(e) => setSkills(e.target.value)} />
+      <form onSubmit={handleSave} className="mt-md">
+        <input
+          className="input"
+          placeholder="Full name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <textarea
+          className="input"
+          rows={3}
+          placeholder="Short bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+        />
+        <input
+          className="input"
+          placeholder="Skills (comma separated)"
+          value={skills}
+          onChange={(e) => setSkills(e.target.value)}
+        />
 
-        <div style={{ color: "#9ca3af", marginTop: "0.6rem" }}>Education</div>
-        <input className="input" placeholder="Degree" value={degree} onChange={(e) => setDegree(e.target.value)} />
-        <input className="input" placeholder="Institution" value={institution} onChange={(e) => setInstitution(e.target.value)} />
-        <input className="input" placeholder="Graduation Year" value={graduationYear} onChange={(e) => setGraduationYear(e.target.value)} />
+        <div className="section-label">Education</div>
+        <input
+          className="input"
+          placeholder="Degree"
+          value={degree}
+          onChange={(e) => setDegree(e.target.value)}
+        />
+        <input
+          className="input"
+          placeholder="Institution"
+          value={institution}
+          onChange={(e) => setInstitution(e.target.value)}
+        />
+        <input
+          className="input"
+          placeholder="Graduation Year"
+          value={gradYear}
+          onChange={(e) => setGradYear(e.target.value)}
+        />
 
-        <div style={{ color: "#9ca3af", marginTop: "0.6rem" }}>Social Profiles</div>
-        <input className="input" placeholder="GitHub URL" value={github} onChange={(e) => setGithub(e.target.value)} />
-        <input className="input" placeholder="LinkedIn URL" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} />
+        <div className="section-label">Links</div>
+        <input
+          className="input"
+          placeholder="GitHub URL"
+          value={github}
+          onChange={(e) => setGithub(e.target.value)}
+        />
+        <input
+          className="input"
+          placeholder="LinkedIn URL"
+          value={linkedin}
+          onChange={(e) => setLinkedin(e.target.value)}
+        />
 
-        <div style={{ color: "#9ca3af", marginTop: "0.6rem" }}>Resume Upload (PDF)</div>
-        <input type="file" accept="application/pdf" className="input" onChange={handleResumeUpload} />
-
+        <div className="section-label">Resume (PDF or Image)</div>
+        <input type="file" className="input" onChange={handleResumeChange} />
         {resume && (
-          <div style={{
-            background: "rgba(255,255,255,0.07)",
-            padding: "0.8rem",
-            borderRadius: "0.6rem",
-            marginTop: "0.6rem",
-            display: "flex",
-            justifyContent: "space-between"
-          }}>
-            <span style={{ fontSize: "0.85rem" }}>{resumeName || "Uploaded Resume"}</span>
-            <button type="button" className="btn btn-ghost" onClick={removeResume}>Remove</button>
-          </div>
+          <a
+            href={resume}
+            target="_blank"
+            rel="noreferrer"
+            className="link mt-sm"
+          >
+            Preview current resume
+          </a>
         )}
 
-        <button className="btn btn-primary" type="submit">Save changes</button>
+        <button className="btn btn-primary mt-md" type="submit">
+          Save changes
+        </button>
       </form>
     </div>
   );

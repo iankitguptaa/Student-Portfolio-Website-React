@@ -1,22 +1,25 @@
+// src/pages/SignupPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signup as signupService } from "../services/authService.js";
+import { signup } from "../services/authService.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
+  const [role, setRole] = useState("student"); // dropdown role
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const user = signupService({ name, email, password });
-      login(user);
-      navigate("/student/dashboard", { replace: true });  // students only
+      const user = signup({ name, email, password, role });
+      setCurrentUser(user);
+      if (role === "admin") navigate("/admin/dashboard", { replace: true });
+      else navigate("/student/dashboard", { replace: true });
     } catch (err) {
       setError(err.message);
     }
@@ -24,14 +27,10 @@ export default function SignupPage() {
 
   return (
     <div className="card auth-card">
-      <h2 className="page-title">Create your account</h2>
-      <p className="page-subtitle">Students can create portfolio & showcase achievements.</p>
+      <h2 className="page-title">Create account</h2>
+      <p className="page-subtitle">Choose your role and set up your profile.</p>
 
-      {error && (
-        <p style={{ color: "#fca5a5", fontSize: "0.85rem", marginTop: "0.6rem" }}>
-          {error}
-        </p>
-      )}
+      {error && <p className="error-text">{error}</p>}
 
       <form onSubmit={handleSubmit} className="mt-md">
         <input
@@ -41,6 +40,15 @@ export default function SignupPage() {
           onChange={(e) => setName(e.target.value)}
           required
         />
+
+        <select
+          className="input"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+        >
+          <option value="student">Student</option>
+          <option value="admin">Admin</option>
+        </select>
 
         <input
           className="input"
@@ -54,7 +62,7 @@ export default function SignupPage() {
         <input
           className="input"
           type="password"
-          placeholder="Password (min 4 characters)"
+          placeholder="Password (min 4 chars)"
           minLength={4}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -62,7 +70,7 @@ export default function SignupPage() {
         />
 
         <button className="btn btn-primary" type="submit">
-          Create Account
+          Sign up
         </button>
       </form>
     </div>

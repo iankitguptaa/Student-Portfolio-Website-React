@@ -1,29 +1,25 @@
+// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser, logout as logoutService } from "../services/authService.js";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    setUser(getCurrentUser());
+    const stored = localStorage.getItem("spp_current_user");
+    if (stored) {
+      setCurrentUser(JSON.parse(stored));
+    }
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-  };
-
-  const logout = () => {
-    logoutService();
-    setUser(null);
-  };
-
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ currentUser, setCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}
