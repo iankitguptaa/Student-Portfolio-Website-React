@@ -25,13 +25,9 @@ export default function SignupPage() {
   return (
     <div className="card auth-card">
       <h2 className="page-title">Create your account</h2>
-      <p className="page-subtitle">Start building your portfolio.</p>
+      <p className="page-subtitle">Students can create portfolios here.</p>
 
-      {error && (
-        <p style={{ color: "#fca5a5", fontSize: "0.85rem", marginTop: "0.6rem" }}>
-          {error}
-        </p>
-      )}
+      {error && <p style={{ color: "#fca5a5" }}>{error}</p>}
 
       <form onSubmit={handleSubmit} className="mt-md">
         <input
@@ -45,7 +41,7 @@ export default function SignupPage() {
         <input
           className="input"
           type="email"
-          placeholder="College email address"
+          placeholder="Email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -54,7 +50,7 @@ export default function SignupPage() {
         <input
           className="input"
           type="password"
-          placeholder="Password (min 4 characters)"
+          placeholder="Password"
           minLength={4}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -62,7 +58,7 @@ export default function SignupPage() {
         />
 
         <button className="btn btn-primary" type="submit">
-          Create account
+          Create Account
         </button>
       </form>
     </div>
