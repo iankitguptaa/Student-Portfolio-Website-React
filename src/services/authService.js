@@ -3,13 +3,8 @@ import { saveToStorage, getFromStorage, removeFromStorage } from "../utils/stora
 const USERS_KEY = "spp_users";
 const CURRENT_USER_KEY = "spp_current_user";
 
-/*
-  FINAL VERSION
-  - Only 1 admin exists permanently
-  - All new signups are automatically students
-*/
-
-export function signup({ name, email, password, role }) {
+// FINAL VERSION - ONLY STUDENT SIGNUP ALLOWED
+export function signup({ name, email, password }) {
   const users = getFromStorage(USERS_KEY, []);
 
   if (users.find((u) => u.email === email)) {
@@ -21,7 +16,7 @@ export function signup({ name, email, password, role }) {
     name,
     email,
     password,
-    role,
+    role: "student",  // ALWAYS STUDENT
     bio: "",
     skills: [],
     projects: [],
@@ -39,9 +34,7 @@ export function signup({ name, email, password, role }) {
   return newUser;
 }
 
-/*
-  LOGIN
-*/
+// LOGIN
 export function login({ email, password }) {
   const users = getFromStorage(USERS_KEY, []);
   const found = users.find((u) => u.email === email && u.password === password);
