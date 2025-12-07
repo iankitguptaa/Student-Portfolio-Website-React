@@ -9,29 +9,23 @@ const CURRENT_USER_KEY = "spp_current_user";
   - All new signups are automatically students
 */
 
-export function signup({ name, email, password }) {
+export function signup({ name, email, password, role }) {
   const users = getFromStorage(USERS_KEY, []);
 
-  // email already registered check
   if (users.find((u) => u.email === email)) {
     throw new Error("Email already registered");
   }
 
-  // Always student signup
   const newUser = {
     id: Date.now().toString(),
     name,
     email,
     password,
-    role: "student",   // ALWAYS STUDENT
+    role,
     bio: "",
     skills: [],
     projects: [],
-    education: {
-      degree: "",
-      institution: "",
-      graduationYear: "",
-    },
+    education: { degree: "", institution: "", graduationYear: "" },
     github: "",
     linkedin: "",
     profileImage: "",
