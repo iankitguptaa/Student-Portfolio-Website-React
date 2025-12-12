@@ -17,7 +17,7 @@ export default function Navbar() {
     <header className="nav-root">
       <div className="nav-inner">
         <Link to="/" className="nav-brand">
-          <div className="nav-logo-pill">SP</div>
+          <div className="nav-logo-pill">SC</div>
           <div>
             <div className="nav-brand-text-main">SHOWCASE.ME</div>
             <div className="nav-brand-text-sub">Profile · Create · Explore</div>
