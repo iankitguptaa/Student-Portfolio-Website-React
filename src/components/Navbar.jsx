@@ -19,8 +19,8 @@ export default function Navbar() {
         <Link to="/" className="nav-brand">
           <div className="nav-logo-pill">SP</div>
           <div>
-            <div className="nav-brand-text-main">Student Portfolio</div>
-            <div className="nav-brand-text-sub">LocalStorage · Dark</div>
+            <div className="nav-brand-text-main">SHOWCASE.ME</div>
+            <div className="nav-brand-text-sub">Profile · Create · Explore</div>
           </div>
         </Link>
 
